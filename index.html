@@ -3,26 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PromptManager Pro + Google Drive</title>
+    <title>PromptManager Pro + Categorías</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://apis.google.com/js/api.js" async defer></script>
 </head>
-<body class="bg-slate-50 min-h-screen font-sans">
+<body class="bg-slate-100 min-h-screen font-sans">
 
-    <nav class="bg-indigo-700 text-white p-4 shadow-xl sticky top-0 z-40">
+    <nav class="bg-indigo-800 text-white p-4 shadow-xl sticky top-0 z-40">
         <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-2">
-                <i class="fas fa-brain text-2xl"></i>
-                <h1 class="text-xl font-bold tracking-tight">PromptManager <span class="text-indigo-200 text-xs font-normal">Cloud v1.0</span></h1>
+                <i class="fas fa-layer-group text-2xl text-yellow-400"></i>
+                <h1 class="text-xl font-bold tracking-tight">PromptManager <span class="text-indigo-300 font-light text-xs">Premium</span></h1>
             </div>
-            
-            <div class="flex flex-wrap justify-center gap-2">
-                <button onclick="syncWithDrive()" class="bg-emerald-500 hover:bg-emerald-400 px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2 shadow-md">
-                    <i class="fab fa-google-drive"></i> Subir a Drive
+            <div class="flex gap-2">
+                <button onclick="syncWithDrive()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2">
+                    <i class="fab fa-google-drive"></i> Backup Drive
                 </button>
-                <button onclick="toggleModal()" class="bg-white text-indigo-700 px-4 py-2 rounded-lg font-bold hover:bg-indigo-50 transition shadow-md">
+                <button onclick="toggleModal()" class="bg-white text-indigo-800 px-4 py-2 rounded-lg font-bold hover:bg-indigo-50 transition">
                     + Nuevo Prompt
                 </button>
             </div>
@@ -30,72 +29,87 @@
     </nav>
 
     <main class="container mx-auto p-6">
-        <div class="max-w-4xl mx-auto mb-10">
-            <div class="relative group">
-                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors"></i>
-                <input type="text" id="searchInput" placeholder="Buscar por título, categoría, etiquetas o contenido..." 
-                    class="w-full pl-12 pr-4 py-4 rounded-2xl border-none shadow-lg focus:ring-4 focus:ring-indigo-500/20 outline-none text-lg transition-all">
-            </div>
+        <div class="max-w-3xl mx-auto mb-8">
+            <input type="text" id="searchInput" placeholder="Filtrar por título, contenido o #etiqueta..." 
+                class="w-full p-4 rounded-2xl border-none shadow-md focus:ring-4 focus:ring-indigo-500/30 outline-none text-lg">
         </div>
 
-        <div id="promptGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            </div>
+        <div id="promptGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </main>
 
-    <div id="modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div id="modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8 shadow-2xl">
-            <div class="flex justify-between items-center mb-6">
-                <h2 id="modalTitle" class="text-2xl font-black text-slate-800 tracking-tight">Nuevo Prompt</h2>
-                <button onclick="toggleModal()" class="text-slate-400 hover:text-red-500 transition-colors"><i class="fas fa-times text-2xl"></i></button>
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                <h2 id="modalTitle" class="text-2xl font-black text-slate-800 uppercase tracking-tighter">Crear Prompt</h2>
+                <button onclick="toggleModal()" class="text-slate-400 hover:text-red-500"><i class="fas fa-times text-2xl"></i></button>
             </div>
             
-            <form id="promptForm" class="space-y-5">
+            <form id="promptForm" class="space-y-4">
                 <input type="hidden" id="promptId">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="text-xs font-black text-slate-500 uppercase tracking-widest">Título descriptivo</label>
-                        <input type="text" id="title" required class="w-full p-3 bg-slate-50 border-2 border-slate-100 rounded-xl mt-1 focus:border-indigo-500 outline-none transition-all" placeholder="Ej: Generador de Blogs SEO">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Título</label>
+                        <input type="text" id="title" required class="w-full p-3 bg-slate-50 border rounded-xl mt-1 focus:ring-2 focus:ring-indigo-500 outline-none">
                     </div>
                     <div>
-                        <label class="text-xs font-black text-slate-500 uppercase tracking-widest">Categoría</label>
-                        <select id="category" class="w-full p-3 bg-slate-50 border-2 border-slate-100 rounded-xl mt-1 focus:border-indigo-500 outline-none">
-                            <option>Escritura</option>
-                            <option>Código</option>
-                            <option>Marketing</option>
-                            <option>Análisis</option>
-                            <option>Creatividad</option>
-                            <option>Personal</option>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Categoría</label>
+                        <select id="category" class="w-full p-3 bg-slate-50 border rounded-xl mt-1 font-bold text-indigo-600">
+                            <option value="Escritura">✍️ Escritura</option>
+                            <option value="Código">💻 Código</option>
+                            <option value="Marketing">🚀 Marketing</option>
+                            <option value="Creatividad">🎨 Creatividad</option>
+                            <option value="Análisis">📊 Análisis</option>
+                            <option value="Personal">🏠 Personal</option>
                         </select>
                     </div>
                 </div>
 
                 <div>
-                    <label class="text-xs font-black text-slate-500 uppercase tracking-widest">Etiquetas (separadas por comas)</label>
-                    <input type="text" id="tags" placeholder="ej: gpt-4, redes sociales, experto" class="w-full p-3 bg-slate-50 border-2 border-slate-100 rounded-xl mt-1 focus:border-indigo-500 outline-none">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Añadir Etiqueta Sugerida</label>
+                    <select onchange="addTagFromSelect(this)" class="w-full p-3 bg-indigo-50 border-indigo-100 border rounded-xl mt-1 text-sm text-indigo-700">
+                        <option value="">-- Selecciona para añadir una etiqueta --</option>
+                        <optgroup label="Modelos">
+                            <option value="GPT-4">GPT-4</option>
+                            <option value="Claude-3">Claude 3</option>
+                            <option value="Gemini">Gemini</option>
+                        </optgroup>
+                        <optgroup label="Tareas">
+                            <option value="SEO">SEO</option>
+                            <option value="Emailing">Emailing</option>
+                            <option value="Python">Python</option>
+                            <option value="Resumen">Resumen</option>
+                        </optgroup>
+                        <optgroup label="Nivel">
+                            <option value="Simple">Simple</option>
+                            <option value="Avanzado">Avanzado</option>
+                        </optgroup>
+                    </select>
+                    <input type="text" id="tags" placeholder="Etiquetas actuales (puedes editarlas aquí)" class="w-full p-2 bg-slate-50 border rounded-lg mt-2 text-xs italic">
                 </div>
 
                 <div>
-                    <label class="text-xs font-black text-slate-500 uppercase tracking-widest">Cuerpo del Prompt</label>
-                    <textarea id="content" rows="6" required class="w-full p-3 bg-slate-50 border-2 border-slate-100 rounded-xl mt-1 font-mono text-sm focus:border-indigo-500 outline-none" placeholder="Actúa como un experto en..."></textarea>
+                    <div class="flex justify-between items-center">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Contenido del Prompt</label>
+                        <span id="charCount" class="text-[10px] font-bold text-indigo-500">0 caracteres</span>
+                    </div>
+                    <textarea id="content" rows="6" required oninput="updateCharCount()" class="w-full p-4 bg-slate-50 border rounded-2xl mt-1 font-mono text-sm focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
                 </div>
 
                 <div>
-                    <label class="text-xs font-black text-slate-500 uppercase tracking-widest text-indigo-600">Variables a editar</label>
-                    <input type="text" id="variables" placeholder="ej: [Tema], [Tono], [Extensión]" class="w-full p-3 bg-indigo-50 border-2 border-indigo-100 rounded-xl mt-1 focus:border-indigo-500 outline-none">
+                    <label class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Variables [ ]</label>
+                    <input type="text" id="variables" placeholder="Ej: [Tema], [Público], [Idioma]" class="w-full p-3 bg-indigo-50 border border-indigo-100 rounded-xl mt-1 outline-none">
                 </div>
 
-                <div class="flex justify-end gap-3 pt-6 border-t border-slate-100">
-                    <button type="button" onclick="toggleModal()" class="px-6 py-2 text-slate-500 font-bold hover:text-slate-800 transition-colors">Cancelar</button>
-                    <button type="submit" class="px-10 py-3 bg-indigo-600 text-white rounded-2xl font-black hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all active:scale-95">
-                        Guardar Prompt
-                    </button>
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" onclick="toggleModal()" class="px-6 py-2 text-slate-400 font-bold uppercase text-xs tracking-widest">Cancelar</button>
+                    <button type="submit" class="px-10 py-3 bg-indigo-600 text-white rounded-2xl font-black shadow-lg hover:bg-indigo-700 transition-all active:scale-95">Guardar</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // --- CONFIGURACIÓN GOOGLE (REEMPLAZA ESTO) ---
+        // --- CONFIGURACIÓN GOOGLE ---
         const CLIENT_ID = '693671346273-da7bmv81sut3ee7cn72e78e9ofpo0ntn.apps.googleusercontent.com';
         const API_KEY = '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';
         const DISCOVERY_DOC = "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest";
@@ -105,7 +119,16 @@
         let tokenClient;
         let gapiInited = false;
 
-        // --- INICIALIZACIÓN DE APIS ---
+        // Configuración de Colores por Categoría
+        const catColors = {
+            "Escritura": "border-amber-400 bg-amber-50 text-amber-700",
+            "Código": "border-blue-500 bg-blue-50 text-blue-700",
+            "Marketing": "border-rose-500 bg-rose-50 text-rose-700",
+            "Creatividad": "border-purple-500 bg-purple-50 text-purple-700",
+            "Análisis": "border-emerald-500 bg-emerald-50 text-emerald-700",
+            "Personal": "border-slate-400 bg-slate-50 text-slate-700"
+        };
+
         function gapiLoaded() {
             gapi.load('client', async () => {
                 await gapi.client.init({ apiKey: API_KEY, discoveryDocs: [DISCOVERY_DOC] });
@@ -121,15 +144,10 @@
             });
         }
 
-        // --- SUBIDA A GOOGLE DRIVE ---
         async function uploadToDrive() {
             const content = JSON.stringify(prompts, null, 2);
             const file = new Blob([content], { type: 'application/json' });
-            const metadata = {
-                name: `backup_prompts_${new Date().toISOString().split('T')[0]}.json`,
-                mimeType: 'application/json'
-            };
-
+            const metadata = { name: `prompts_backup_${new Date().toLocaleDateString()}.json`, mimeType: 'application/json' };
             const form = new FormData();
             form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
             form.append('file', file);
@@ -140,68 +158,64 @@
                     headers: new Headers({ 'Authorization': 'Bearer ' + gapi.client.getToken().access_token }),
                     body: form
                 });
-                if(response.ok) alert("✅ Éxito: Backup guardado en tu Google Drive.");
-            } catch (err) {
-                alert("❌ Error al subir a Drive. Revisa tu consola.");
-                console.error(err);
-            }
+                if(response.ok) alert("✅ Guardado en Google Drive.");
+            } catch (err) { console.error(err); }
         }
 
         function syncWithDrive() {
-            if (CLIENT_ID === 'TU_CLIENT_ID_AQUÍ') {
-                alert("Primero debes configurar tu CLIENT_ID de Google Cloud.");
-                return;
-            }
-            if (gapi.client.getToken() === null) {
-                tokenClient.requestAccessToken({ prompt: 'consent' });
-            } else {
-                uploadToDrive();
-            }
+            if (gapi.client.getToken() === null) tokenClient.requestAccessToken({ prompt: 'consent' });
+            else uploadToDrive();
         }
 
-        // --- GESTIÓN DE PROMPTS ---
-        function saveAndRender() {
-            localStorage.setItem('myPrompts', JSON.stringify(prompts));
-            renderPrompts();
-        }
-
+        // --- LÓGICA DE PROMPTS ---
         function renderPrompts(filter = '') {
             const grid = document.getElementById('promptGrid');
             grid.innerHTML = '';
-            
             const filtered = prompts.filter(p => 
                 p.title.toLowerCase().includes(filter.toLowerCase()) || 
                 p.tags.some(t => t.toLowerCase().includes(filter.toLowerCase())) ||
-                p.content.toLowerCase().includes(filter.toLowerCase()) ||
-                p.category.toLowerCase().includes(filter.toLowerCase())
+                p.content.toLowerCase().includes(filter.toLowerCase())
             );
 
             filtered.forEach(p => {
+                const colors = catColors[p.category] || "border-gray-200 bg-white";
                 const div = document.createElement('div');
-                div.className = "bg-white p-6 rounded-3xl shadow-sm hover:shadow-xl transition-all border border-slate-100 flex flex-col h-full group";
+                div.className = `p-6 rounded-3xl border-t-8 shadow-sm hover:shadow-xl transition-all ${colors} flex flex-col`;
                 div.innerHTML = `
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-full uppercase tracking-widest">${p.category}</span>
-                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="copyPrompt('${p.id}')" class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all"><i class="fas fa-copy text-xs"></i></button>
-                            <button onclick="editPrompt('${p.id}')" class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-500 hover:text-white transition-all"><i class="fas fa-edit text-xs"></i></button>
-                            <button onclick="deletePrompt('${p.id}')" class="w-8 h-8 rounded-full bg-red-50 text-red-600 hover:bg-red-500 hover:text-white transition-all"><i class="fas fa-trash text-xs"></i></button>
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[9px] font-black uppercase tracking-tighter opacity-70">${p.category}</span>
+                        <div class="flex gap-2">
+                            <button onclick="copyPrompt('${p.id}')" class="hover:scale-125 transition-transform"><i class="fas fa-copy"></i></button>
+                            <button onclick="editPrompt('${p.id}')" class="hover:scale-125 transition-transform"><i class="fas fa-edit"></i></button>
+                            <button onclick="deletePrompt('${p.id}')" class="hover:scale-125 transition-transform"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
-                    <h3 class="font-black text-slate-800 text-lg mb-3 leading-tight">${p.title}</h3>
-                    <div class="bg-slate-50 p-4 rounded-2xl mb-4 flex-grow border border-slate-50">
-                        <p class="text-sm text-slate-600 line-clamp-4 font-mono italic">"${p.content}"</p>
-                    </div>
-                    <div class="text-[10px] text-slate-400 font-bold mb-3">VARIABLES: <span class="text-indigo-500">${p.variables || 'Ninguna'}</span></div>
+                    <h3 class="font-black text-slate-800 text-lg mb-2 leading-tight">${p.title}</h3>
+                    <div class="bg-white/50 p-3 rounded-xl mb-4 flex-grow italic text-sm text-slate-600 line-clamp-3">"${p.content}"</div>
                     <div class="flex flex-wrap gap-1">
-                        ${p.tags.map(t => `<span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-1 rounded-md font-bold">#${t}</span>`).join('')}
+                        ${p.tags.map(t => `<span class="text-[9px] bg-white/80 px-2 py-0.5 rounded font-bold border border-black/5">#${t}</span>`).join('')}
                     </div>
                 `;
                 grid.appendChild(div);
             });
         }
 
-        // Eventos de formulario
+        function addTagFromSelect(select) {
+            if (!select.value) return;
+            const tagInput = document.getElementById('tags');
+            let currentTags = tagInput.value.split(',').map(t => t.trim()).filter(t => t);
+            if (!currentTags.includes(select.value)) {
+                currentTags.push(select.value);
+                tagInput.value = currentTags.join(', ');
+            }
+            select.value = "";
+        }
+
+        function updateCharCount() {
+            const text = document.getElementById('content').value;
+            document.getElementById('charCount').innerText = `${text.length} caracteres`;
+        }
+
         document.getElementById('promptForm').onsubmit = (e) => {
             e.preventDefault();
             const id = document.getElementById('promptId').value;
@@ -209,41 +223,30 @@
                 id: id || Date.now().toString(),
                 title: document.getElementById('title').value,
                 category: document.getElementById('category').value,
-                tags: document.getElementById('tags').value.split(',').map(t => t.trim()).filter(t => t !== ""),
+                tags: document.getElementById('tags').value.split(',').map(t => t.trim()).filter(t => t),
                 content: document.getElementById('content').value,
                 variables: document.getElementById('variables').value,
-                date: id ? prompts.find(p => p.id == id).date : new Date().toLocaleDateString(),
                 lastModified: new Date().toLocaleString()
             };
-            
             if(id) prompts = prompts.map(p => p.id == id ? newPrompt : p);
             else prompts.push(newPrompt);
-            
+            localStorage.setItem('myPrompts', JSON.stringify(prompts));
             toggleModal();
-            saveAndRender();
+            renderPrompts();
         };
 
         function toggleModal() { 
             document.getElementById('modal').classList.toggle('hidden'); 
             document.getElementById('promptForm').reset();
-            document.getElementById('promptId').value = '';
-            document.getElementById('modalTitle').innerText = 'Nuevo Prompt';
+            document.getElementById('charCount').innerText = "0 caracteres";
         }
 
-        async function copyPrompt(id) {
+        function deletePrompt(id) { if(confirm("¿Eliminar?")) { prompts = prompts.filter(p => p.id != id); localStorage.setItem('myPrompts', JSON.stringify(prompts)); renderPrompts(); } }
+
+        function copyPrompt(id) {
             const p = prompts.find(p => p.id == id);
-            await navigator.clipboard.writeText(p.content);
-            const btn = event.currentTarget;
-            const originalIcon = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-check"></i>';
-            setTimeout(() => btn.innerHTML = originalIcon, 2000);
-        }
-
-        function deletePrompt(id) {
-            if(confirm("¿Estás seguro de que quieres eliminar este prompt?")) {
-                prompts = prompts.filter(p => p.id != id);
-                saveAndRender();
-            }
+            navigator.clipboard.writeText(p.content);
+            alert("¡Copiado!");
         }
 
         function editPrompt(id) {
@@ -254,20 +257,12 @@
             document.getElementById('tags').value = p.tags.join(', ');
             document.getElementById('content').value = p.content;
             document.getElementById('variables').value = p.variables;
-            document.getElementById('modalTitle').innerText = 'Editar Prompt';
+            updateCharCount();
             document.getElementById('modal').classList.remove('hidden');
         }
 
-        // Buscador en tiempo real
         document.getElementById('searchInput').oninput = (e) => renderPrompts(e.target.value);
-
-        // Inicializar carga de scripts de Google
-        window.onload = () => {
-            gapiLoaded();
-            gsiLoaded();
-            renderPrompts();
-        };
+        window.onload = () => { gapiLoaded(); gsiLoaded(); renderPrompts(); };
     </script>
 </body>
-
 </html>
